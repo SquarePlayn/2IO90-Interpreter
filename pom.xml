@@ -10,12 +10,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>dbl-algorithms</groupId>
-            <artifactId>interpreter</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>dbl-algoriths</groupId>
             <artifactId>algorithm</artifactId>
             <version>1.0-SNAPSHOT</version>
