@@ -27,9 +27,19 @@ public class Taxi {
         this.position = position;
     }
 
-    public boolean pickup() {
+    public boolean pickup(Vertex destination) {
 
-        return false;
+        if (passangers.size() >= capacity) {
+            // TODO Provide feedback
+            return false;
+        }
+
+        if (position.getCustomer(destination) == null) {
+            // TODO Provide feedback
+            return false;
+        }
+
+
 
     }
 }

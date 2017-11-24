@@ -20,6 +20,10 @@ public class Vertex {
         this.customers = new ArrayList<Customer>();
     }
 
+    public int getId() {
+        return id;
+    }
+
     public void addNeighbour(Vertex vertex) {
         neighbours.add(vertex);
     }
@@ -33,6 +37,23 @@ public class Vertex {
     }
 
     public Customer getCustomer(Vertex destination) {
-        return null;
+
+        Customer candidate = null;
+
+        for (Customer customer : customers) {
+            if (customer.getDestination() == destination) {
+                if (candidate != null) {
+                    if (customer.getAge() > candidate.getAge()) {
+                        candidate = customer;
+                    } else if (customer.getAge() == candidate.getAge()) {
+                        if (customer.getInitialDistance() < candidate.getInitialDistance()) {
+                            candidate = customer;
+                        }
+                    }
+                }
+            }
+        }
+
+        return candidate;
     }
 }

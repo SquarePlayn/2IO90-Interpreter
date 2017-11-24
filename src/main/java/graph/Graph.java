@@ -13,6 +13,7 @@ public class Graph {
 
     public Graph(int amountOfVertices) {
 
+        vertices = new ArrayList<Vertex>();
         createVertices(amountOfVertices);
 
     }
@@ -23,7 +24,7 @@ public class Graph {
 
     public int getDistance(Vertex start, Vertex end) {
 
-        Queue<Vertex> queue = new PriorityQueue<>();
+        ArrayList<Vertex> queue = new ArrayList<Vertex>();
         HashMap<Vertex, Integer> visited = new HashMap<Vertex, Integer>();
 
         visited.put(start, 0);
@@ -31,7 +32,7 @@ public class Graph {
 
         while (!queue.isEmpty()) {
 
-            Vertex now = queue.poll();
+            Vertex now = queue.remove(0);
             int distanceNow = visited.get(now);
 
             for (Vertex neighbour : now.getNeighbours()) {
@@ -40,7 +41,7 @@ public class Graph {
                     return distanceNow + 1;
                 }
 
-                if (!visited.containsKey(now)) {
+                if (!visited.containsKey(neighbour)) {
 
                     visited.put(neighbour, distanceNow + 1);
                     queue.add(neighbour);
