@@ -15,6 +15,8 @@ public class Interpreter {
 
     private Preamble preamble;
 
+    private ArrayList<Taxi> taxis;
+
     public Interpreter() {
 
         input = new ArrayList<String>();
@@ -29,12 +31,13 @@ public class Interpreter {
 
     public void run() {
 
-        // TODO Update to register input and output reader
-        // IMPORTANT This is broken for now, TaxiScanner must first be updated
-        TaxiScanner.getInstance().registerReader(inputReader);
+        TaxiScanner.getInstance().registerInputReader(inputReader);
+        TaxiScanner.getInstance().registerOutputReader(outputReader);
 
         // Runs the algorithm
         (new Main()).run();
+
+        preamble.read(input);
 
 
 
