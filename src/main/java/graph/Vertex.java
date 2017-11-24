@@ -42,7 +42,9 @@ public class Vertex {
 
         for (Customer customer : customers) {
             if (customer.getDestination() == destination) {
-                if (candidate != null) {
+                if (candidate == null) {
+                    candidate = customer;
+                } else {
                     if (customer.getAge() > candidate.getAge()) {
                         candidate = customer;
                     } else if (customer.getAge() == candidate.getAge()) {

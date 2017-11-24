@@ -48,6 +48,7 @@ public class Interpreter {
 
         taxi.Taxi.capacity = preamble.getTaxiCapacity();
 
+        // Read input and output, simulate actions
 
     }
 

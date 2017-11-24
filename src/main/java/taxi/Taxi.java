@@ -27,6 +27,16 @@ public class Taxi {
         this.position = position;
     }
 
+    public boolean move(Vertex destination) {
+        if (position.getNeighbours().contains(destination)) {
+            position = destination;
+            return true;
+        } else {
+            // TODO Provide feedback
+            return false;
+        }
+    }
+
     public boolean pickup(Vertex destination) {
 
         if (passangers.size() >= capacity) {
@@ -34,12 +44,48 @@ public class Taxi {
             return false;
         }
 
-        if (position.getCustomer(destination) == null) {
+        Customer customer = position.getCustomer(destination);
+
+        if (customer == null) {
             // TODO Provide feedback
             return false;
         }
 
+        position.getCustomers().remove(customer);
+        passangers.add(customer);
 
+        return true;
+    }
 
+    public boolean drop(Vertex destination) {
+
+        Customer candidate = null;
+
+        for (Customer customer : passangers) {
+
+            if (customer.getDestination() == destination) {
+                if (candidate == null) {
+                    candidate = customer;
+                } else {
+                    if (customer.getAge() > candidate.getAge()) {
+                        candidate = customer;
+                    }
+                }
+            }
+        }
+
+        if (candidate == null) {
+            return false;
+        }
+
+        passangers.remove(candidate);
+
+        if (candidate.getDestination() == position) {
+            candidate.setArrivedAtLocation(true);
+        } else {
+            position.getCustomers().add(candidate);
+        }
+
+        return true;
     }
 }

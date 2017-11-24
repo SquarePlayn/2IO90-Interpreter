@@ -13,10 +13,13 @@ public class Customer {
     private Vertex destination;
     private int age;
     private int initialDistance;
+    private boolean arrivedAtLocation;
 
     public Customer(Vertex start, Vertex destination) {
         this.destination = destination;
-        initialDistance = graph.getDistance(start, destination);
+        this.initialDistance = graph.getDistance(start, destination);
+        this.age = 0;
+        this.arrivedAtLocation = false;
     }
 
     public Vertex getDestination() {
@@ -29,5 +32,13 @@ public class Customer {
 
     public int getAge() {
         return age;
+    }
+
+    public boolean isArrivedAtLocation() {
+        return arrivedAtLocation;
+    }
+
+    public void setArrivedAtLocation(boolean arrivedAtLocation) {
+        this.arrivedAtLocation = arrivedAtLocation;
     }
 }
