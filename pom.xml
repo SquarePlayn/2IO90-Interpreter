@@ -71,6 +71,17 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>Interpreter</mainClass>
+                    <arguments>
+                        <argument>-a</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
