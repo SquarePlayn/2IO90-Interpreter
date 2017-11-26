@@ -63,7 +63,7 @@ public class Graph {
             System.out.println("Vertex ID: " + vertex.getId());
             System.out.println("Neighbours");
             for (Vertex neighbour : vertex.getNeighbours()) {
-                System.out.println("    Vertex ID: " + vertex.getId());
+                System.out.println("    Vertex ID: " + neighbour.getId());
             }
 
             System.out.println("Customers");

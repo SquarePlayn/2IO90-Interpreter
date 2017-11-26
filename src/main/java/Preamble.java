@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class Preamble {
 
-    private float alpha;
+    private double alpha;
     private int maximumTravelTime;
     private int amountOfTaxis;
     private int taxiCapacity;
@@ -16,7 +16,7 @@ public class Preamble {
     private int trainingPeriod;
     private int callListLength;
 
-    public float getAlpha() {
+    public double getAlpha() {
         return alpha;
     }
 
@@ -79,15 +79,15 @@ public class Preamble {
      */
     public void read(ArrayList<String> input) {
 
-        // Index corresponds to a line number in the input
-        int index = 0;
+        // Remove the amount of preamble lines left from the input
+        input.remove(0);
 
-        alpha = Float.parseFloat(input.get(index++));
-        maximumTravelTime = Integer.parseInt(input.get(index++));
-        amountOfTaxis = Integer.parseInt(input.get(index).split(" ")[0]);
-        taxiCapacity = Integer.parseInt(input.get(index++).split(" ")[1]);
+        alpha = Double.parseDouble(input.remove(0));
+        maximumTravelTime = Integer.parseInt(input.remove(0));
+        amountOfTaxis = Integer.parseInt(input.get(0).split(" ")[0]);
+        taxiCapacity = Integer.parseInt(input.remove(0).split(" ")[1]);
 
-        int amountOfVertices = Integer.parseInt(input.get(index++));
+        int amountOfVertices = Integer.parseInt(input.remove(0));
 
         graph = new Graph(amountOfVertices);
 
@@ -95,7 +95,7 @@ public class Preamble {
         for (int i = 0; i < amountOfVertices; i++) {
 
             // Split the line and extract the amount of edges
-            String[] edgesInput = input.get(index++).split(" ");
+            String[] edgesInput = input.remove(0).split(" ");
             int amountOfEdges = Integer.parseInt(edgesInput[0]);
 
             // Loop over the ids of the edges on the line
@@ -106,8 +106,8 @@ public class Preamble {
             }
         }
 
-        trainingPeriod = Integer.parseInt(input.get(index).split(" ")[0]);
-        callListLength = Integer.parseInt(input.get(index).split(" ")[1]);
+        trainingPeriod = Integer.parseInt(input.get(0).split(" ")[0]);
+        callListLength = Integer.parseInt(input.remove(0).split(" ")[1]);
 
     }
 

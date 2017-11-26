@@ -6,6 +6,7 @@ import taxi.Customer;
 import taxi.Taxi;
 
 import java.io.File;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 
 /**
@@ -42,7 +43,9 @@ public class Interpreter {
         TaxiScanner.getInstance().registerOutputReader(outputReader);
 
         // Runs the algorithm
+        System.out.println("Running algorithm");
         (new Main()).run();
+        System.out.println("Done running the algorithm");
 
         preamble.read(input);
 
@@ -50,7 +53,20 @@ public class Interpreter {
         Customer.graph = preamble.getGraph();
         taxi.Taxi.capacity = preamble.getTaxiCapacity();
 
+        System.out.println("Starting simulation");
+
         // Read input and output, simulate actions
+        // TODO Check if maximum number of output lines have been passed
+        while (output.size() > 0) {
+
+            if (input.size() > 0) {
+                String[] inputLine = input.remove(0).split(" ");
+                parseCallList(inputLine);
+            }
+
+            output.remove(0);
+
+        }
 
         System.out.println("Done");
 
