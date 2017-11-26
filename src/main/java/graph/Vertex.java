@@ -32,6 +32,14 @@ public class Vertex {
         return neighbours;
     }
 
+    public void addCustomer(Customer customer) {
+        customers.add(customer);
+    }
+
+    public void removeCustomer(Customer customer) {
+        customers.remove(customer);
+    }
+
     public ArrayList<Customer> getCustomers() {
         return customers;
     }

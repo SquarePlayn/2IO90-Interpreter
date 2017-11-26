@@ -51,7 +51,7 @@ public class Taxi {
             return false;
         }
 
-        position.getCustomers().remove(customer);
+        position.removeCustomer(customer);
         passangers.add(customer);
 
         return true;
@@ -83,7 +83,7 @@ public class Taxi {
         if (candidate.getDestination() == position) {
             candidate.setArrivedAtLocation(true);
         } else {
-            position.getCustomers().add(candidate);
+            position.addCustomer(candidate);
         }
 
         return true;

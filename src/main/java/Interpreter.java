@@ -1,7 +1,7 @@
 import graph.Graph;
+import graph.Vertex;
 import input.Reader;
 import org.apache.commons.cli.*;
-import taxi.*;
 import taxi.Customer;
 import taxi.Taxi;
 
@@ -21,6 +21,7 @@ public class Interpreter {
 
     private Preamble preamble;
 
+    private Graph graph;
     private ArrayList<Taxi> taxis;
 
     public Interpreter() {
@@ -44,11 +45,45 @@ public class Interpreter {
         (new Main()).run();
 
         preamble.read(input);
-        Customer.graph = preamble.getGraph();
 
+        graph = preamble.getGraph();
+        Customer.graph = preamble.getGraph();
         taxi.Taxi.capacity = preamble.getTaxiCapacity();
 
         // Read input and output, simulate actions
+
+        System.out.println("Done");
+
+    }
+
+    /**
+     * Reads the input line. If customer calls are present, create new customers and add
+     * them to their start locations.
+     *
+     * @param callList Input line
+     */
+    public void parseCallList(String[] callList) {
+
+        int amountOfCalls = Integer.parseInt(callList[0]);
+
+        for (int i = 0; i < amountOfCalls; i += 2) {
+
+            int startLocationId = Integer.parseInt(callList[i + 1]);
+            int destinationId = Integer.parseInt(callList[i + 2]);
+
+            Vertex start = graph.getVertex(startLocationId);
+            Vertex destination = graph.getVertex(destinationId);
+
+            Customer customer = new Customer(start, destination);
+
+            graph.getVertex(startLocationId);
+
+        }
+    }
+
+    public boolean parseOutput(String[] output) {
+
+        return false;
 
     }
 

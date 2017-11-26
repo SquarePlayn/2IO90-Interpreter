@@ -1,6 +1,7 @@
 package graph;
 
 import javafx.util.Pair;
+import taxi.Customer;
 
 import java.util.*;
 
@@ -51,6 +52,29 @@ public class Graph {
         }
 
         return -1;
+    }
+
+    public void debug() {
+
+        System.out.println("Graph information ");
+        System.out.println("-----------------");
+        for (Vertex vertex : vertices) {
+
+            System.out.println("Vertex ID: " + vertex.getId());
+            System.out.println("Neighbours");
+            for (Vertex neighbour : vertex.getNeighbours()) {
+                System.out.println("    Vertex ID: " + vertex.getId());
+            }
+
+            System.out.println("Customers");
+            for (Customer customer : vertex.getCustomers()) {
+                System.out.println("Customer ID: " + customer.getId());
+                System.out.println("    Start: " + customer.getStartLocation().getId());
+                System.out.println("    Destination: " + customer.getDestination().getId());
+                System.out.println("    Age: " + customer.getAge());
+            }
+        }
+
     }
 
     private void createVertices(int amountOfVertices) {
