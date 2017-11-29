@@ -66,12 +66,12 @@ public class Graph {
                 System.out.println("    Vertex ID: " + neighbour.getId());
             }
 
-            System.out.println("Customers");
+            System.out.println("    Customers");
             for (Customer customer : vertex.getCustomers()) {
-                System.out.println("Customer ID: " + customer.getId());
-                System.out.println("    Start: " + customer.getStartLocation().getId());
-                System.out.println("    Destination: " + customer.getDestination().getId());
-                System.out.println("    Age: " + customer.getAge());
+                System.out.println("        Customer ID: " + customer.getId());
+                System.out.println("        Start: " + customer.getStartLocation().getId());
+                System.out.println("        Destination: " + customer.getDestination().getId());
+                System.out.println("        Age: " + customer.getAge());
             }
         }
 

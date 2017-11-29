@@ -1,3 +1,4 @@
+import exceptions.InterpreterException;
 import graph.Graph;
 import graph.Vertex;
 import input.Reader;
@@ -6,7 +7,6 @@ import taxi.Customer;
 import taxi.Taxi;
 
 import java.io.File;
-import java.nio.file.FileSystems;
 import java.util.ArrayList;
 
 /**
@@ -23,12 +23,11 @@ public class Interpreter {
     private Preamble preamble;
 
     private Graph graph;
-    private ArrayList<Taxi> taxis;
 
     public Interpreter() {
 
-        input = new ArrayList<String>();
-        output = new ArrayList<String>();
+        input = new ArrayList<>();
+        output = new ArrayList<>();
 
         inputReader = new Reader(input);
         outputReader = new Reader(output);
@@ -37,7 +36,7 @@ public class Interpreter {
 
     }
 
-    public void run() {
+    private void run() {
 
         TaxiScanner.getInstance().registerInputReader(inputReader);
         TaxiScanner.getInstance().registerOutputReader(outputReader);
@@ -52,19 +51,36 @@ public class Interpreter {
         graph = preamble.getGraph();
         Customer.graph = preamble.getGraph();
         taxi.Taxi.capacity = preamble.getTaxiCapacity();
+        Taxi.maximumNumberOfTaxis = preamble.getAmountOfTaxis();
 
         System.out.println("Starting simulation");
+
+        int lineNumber = 1;
 
         // Read input and output, simulate actions
         // TODO Check if maximum number of output lines have been passed
         while (output.size() > 0) {
 
+            if (lineNumber++ <= preamble.getTrainingPeriod()) {
+                output.remove(0);
+                input.remove(0);
+                continue;
+            }
+
+            System.out.println("Parsing output: " + output.get(0));
+
+            try {
+                parseOutput(output.remove(0).split(" "));
+            } catch (InterpreterException exception) {
+                System.out.println(exception.getMessage());
+                System.exit(1);
+            }
+
             if (input.size() > 0) {
+                System.out.println("Parsing input: " + input.get(0));
                 String[] inputLine = input.remove(0).split(" ");
                 parseCallList(inputLine);
             }
-
-            output.remove(0);
 
         }
 
@@ -78,28 +94,84 @@ public class Interpreter {
      *
      * @param callList Input line
      */
-    public void parseCallList(String[] callList) {
+    private void parseCallList(String[] callList) {
 
         int amountOfCalls = Integer.parseInt(callList[0]);
 
-        for (int i = 0; i < amountOfCalls; i += 2) {
+        for (int i = 0; i < amountOfCalls; i++) {
 
-            int startLocationId = Integer.parseInt(callList[i + 1]);
-            int destinationId = Integer.parseInt(callList[i + 2]);
+            int startLocationId = Integer.parseInt(callList[2 * i + 1]);
+            int destinationId = Integer.parseInt(callList[2 * i + 2]);
 
             Vertex start = graph.getVertex(startLocationId);
             Vertex destination = graph.getVertex(destinationId);
 
             Customer customer = new Customer(start, destination);
 
-            graph.getVertex(startLocationId);
+            graph.getVertex(startLocationId).addCustomer(customer);
 
         }
     }
 
-    public boolean parseOutput(String[] output) {
+    private void parseOutput(String[] commands) throws InterpreterException {
 
-        return false;
+        boolean isDone = false;
+        int pointer = 0;
+
+        // TODO Refactor into more beautiful code
+        do {
+            if (commands[pointer].equals("p")) {
+
+                int taxiId = Integer.parseInt(commands[pointer + 1]);
+                int destinationId = Integer.parseInt(commands[pointer + 2]);
+
+                Taxi taxi = Taxi.getTaxi(taxiId);
+                Vertex destination = graph.getVertex(destinationId);
+
+                taxi.pickup(destination);
+
+                pointer += 3;
+                continue;
+
+            }
+
+            if (commands[pointer].equals("m")) {
+
+                int taxiId = Integer.parseInt(commands[pointer + 1]);
+                int destinationId = Integer.parseInt(commands[pointer + 2]);
+
+                Taxi taxi = Taxi.getTaxi(taxiId);
+                Vertex destination = graph.getVertex(destinationId);
+
+                taxi.move(destination);
+
+                pointer += 3;
+                continue;
+
+            }
+
+            if (commands[pointer].equals("d")) {
+
+                int taxiId = Integer.parseInt(commands[pointer + 1]);
+                int destinationId = Integer.parseInt(commands[pointer + 2]);
+
+                Taxi taxi = Taxi.getTaxi(taxiId);
+                Vertex destination = graph.getVertex(destinationId);
+
+                taxi.drop(destination);
+
+                pointer += 3;
+                continue;
+
+            }
+
+            if (commands[pointer].equals("c")) {
+
+                isDone = true;
+
+            }
+
+        } while (!isDone);
 
     }
 
