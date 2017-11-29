@@ -47,6 +47,12 @@ public class Customer {
         return age;
     }
 
+    public void age() {
+        if (!isArrivedAtLocation()) {
+            age++;
+        }
+    }
+
     public boolean isArrivedAtLocation() {
         return arrivedAtLocation;
     }

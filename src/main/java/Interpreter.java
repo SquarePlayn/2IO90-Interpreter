@@ -24,6 +24,8 @@ public class Interpreter {
 
     private Graph graph;
 
+    private ArrayList<Customer> customers;
+
     public Interpreter() {
 
         input = new ArrayList<>();
@@ -33,6 +35,8 @@ public class Interpreter {
         outputReader = new Reader(output);
 
         preamble = new Preamble();
+
+        customers = new ArrayList<>();
 
     }
 
@@ -76,6 +80,10 @@ public class Interpreter {
                 System.exit(1);
             }
 
+            for (Customer customer : customers) {
+                customer.age();
+            }
+
             if (input.size() > 0) {
                 System.out.println("Parsing input: " + input.get(0));
                 String[] inputLine = input.remove(0).split(" ");
@@ -83,6 +91,18 @@ public class Interpreter {
             }
 
         }
+
+        // Calculate costs
+        double costs = 0;
+
+        for (Customer customer : customers) {
+
+            double customerCost = customer.getAge() / Math.pow(customer.getInitialDistance() + 2, preamble.getAlpha());
+            costs += customerCost;
+
+        }
+
+        System.out.println("Costs: " + costs);
 
         System.out.println("Done");
 
@@ -108,6 +128,7 @@ public class Interpreter {
 
             Customer customer = new Customer(start, destination);
 
+            customers.add(customer);
             graph.getVertex(startLocationId).addCustomer(customer);
 
         }
