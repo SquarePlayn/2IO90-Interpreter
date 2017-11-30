@@ -1,10 +1,12 @@
+package simulator;
+
 import graph.Graph;
 import graph.Vertex;
 
 import java.util.ArrayList;
 
 /**
- * Preamble object to store all preamble information
+ * simulator.Preamble object to store all preamble information
  */
 public class Preamble {
 
@@ -13,63 +15,35 @@ public class Preamble {
     private int amountOfTaxis;
     private int taxiCapacity;
     private Graph graph;
-    private int trainingPeriod;
+    private int trainingPeriodLength;
     private int callListLength;
 
     public double getAlpha() {
         return alpha;
     }
 
-    public void setAlpha(float alpha) {
-        this.alpha = alpha;
-    }
-
     public int getMaximumTravelTime() {
         return maximumTravelTime;
-    }
-
-    public void setMaximumTravelTime(int maximumTravelTime) {
-        this.maximumTravelTime = maximumTravelTime;
     }
 
     public int getAmountOfTaxis() {
         return amountOfTaxis;
     }
 
-    public void setAmountOfTaxis(int amountOfTaxis) {
-        this.amountOfTaxis = amountOfTaxis;
-    }
-
     public int getTaxiCapacity() {
         return taxiCapacity;
-    }
-
-    public void setTaxiCapacity(int taxiCapacity) {
-        this.taxiCapacity = taxiCapacity;
     }
 
     public Graph getGraph() {
         return graph;
     }
 
-    public void setGraph(Graph graph) {
-        this.graph = graph;
-    }
-
-    public int getTrainingPeriod() {
-        return trainingPeriod;
-    }
-
-    public void setTrainingPeriod(int trainingPeriod) {
-        this.trainingPeriod = trainingPeriod;
+    public int getTrainingPeriodLength() {
+        return trainingPeriodLength;
     }
 
     public int getCallListLength() {
         return callListLength;
-    }
-
-    public void setCallListLength(int callListLength) {
-        this.callListLength = callListLength;
     }
 
     /**
@@ -106,7 +80,7 @@ public class Preamble {
             }
         }
 
-        trainingPeriod = Integer.parseInt(input.get(0).split(" ")[0]);
+        trainingPeriodLength = Integer.parseInt(input.get(0).split(" ")[0]);
         callListLength = Integer.parseInt(input.remove(0).split(" ")[1]);
 
     }

@@ -6,7 +6,7 @@ import taxi.Taxi;
 /**
  *
  */
-public class NoCustomerWithDestinationException extends InterpreterException {
+public class NoCustomerWithDestinationException extends SimulatorException {
 
     public NoCustomerWithDestinationException(Taxi taxi, Vertex vertex) {
 

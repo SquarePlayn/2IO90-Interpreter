@@ -1,8 +1,8 @@
-import exceptions.InterpreterException;
-import graph.Graph;
+import exceptions.SimulatorException;
 import graph.Vertex;
 import input.Reader;
 import org.apache.commons.cli.*;
+import simulator.Simulator;
 import taxi.Customer;
 import taxi.Taxi;
 
@@ -20,182 +20,56 @@ public class Interpreter {
     private ArrayList<String> input;
     private ArrayList<String> output;
 
-    private Preamble preamble;
-
-    private Graph graph;
-
-    private ArrayList<Customer> customers;
-
     public Interpreter() {
-
-        input = new ArrayList<>();
-        output = new ArrayList<>();
 
         inputReader = new Reader(input);
         outputReader = new Reader(output);
 
-        preamble = new Preamble();
-
-        customers = new ArrayList<>();
-
     }
 
-    private void run() {
+    /**
+     * Initialises readers for the algorithm
+     */
+    private void setup() {
 
+        // Clear buffers
+        input = new ArrayList<>();
+        output = new ArrayList<>();
+
+        // Register readers to get input and output from the algorithm
         TaxiScanner.getInstance().registerInputReader(inputReader);
         TaxiScanner.getInstance().registerOutputReader(outputReader);
-
-        // Runs the algorithm
-        System.out.println("Running algorithm");
-        long startTime = System.currentTimeMillis();
-        (new Main()).run();
-        long endTime = System.currentTimeMillis();
-        System.out.println("Done running the algorithm");
-
-        preamble.read(input);
-
-        graph = preamble.getGraph();
-        Customer.graph = preamble.getGraph();
-        taxi.Taxi.capacity = preamble.getTaxiCapacity();
-        Taxi.maximumNumberOfTaxis = preamble.getAmountOfTaxis();
-
-        System.out.println("Starting simulation");
-
-        int lineNumber = 1;
-
-        // Read input and output, simulate actions
-        // TODO Check if maximum number of output lines have been passed
-        while (output.size() > 0) {
-
-            if (lineNumber++ <= preamble.getTrainingPeriod()) {
-                output.remove(0);
-                input.remove(0);
-                continue;
-            }
-
-            System.out.println("Parsing output: " + output.get(0));
-
-            try {
-                parseOutput(output.remove(0).split(" "));
-            } catch (InterpreterException exception) {
-                System.out.println(exception.getMessage());
-                System.exit(1);
-            }
-
-            for (Customer customer : customers) {
-                customer.age();
-            }
-
-            if (input.size() > 0) {
-                System.out.println("Parsing input: " + input.get(0));
-                String[] inputLine = input.remove(0).split(" ");
-                parseCallList(inputLine);
-            }
-
-        }
-
-        // Calculate costs
-        double costs = 0;
-
-        for (Customer customer : customers) {
-
-            double customerCost = customer.getAge() / Math.pow(customer.getInitialDistance() + 2, preamble.getAlpha());
-            costs += customerCost;
-
-        }
-
-        System.out.println("Time: " + (endTime - startTime) + " ms");
-        System.out.println("Costs: " + costs);
-
-        System.out.println("Done");
 
     }
 
     /**
-     * Reads the input line. If customer calls are present, create new customers and add
-     * them to their start locations.
+     * Runs the algorithm with a give test case file
      *
-     * @param callList Input line
+     * @param testCase Test case
      */
-    private void parseCallList(String[] callList) {
+    public void run(File testCase) {
 
-        int amountOfCalls = Integer.parseInt(callList[0]);
+        // Run setup
+        setup();
 
-        for (int i = 0; i < amountOfCalls; i++) {
+        // Set test case
+        TaxiScanner.setInputFile(testCase);
 
-            int startLocationId = Integer.parseInt(callList[2 * i + 1]);
-            int destinationId = Integer.parseInt(callList[2 * i + 2]);
+        // Keep track of time and run the algorithm
+        long startTime = System.currentTimeMillis();
+        (new Main()).run();
+        long endTime = System.currentTimeMillis();
+        long runTime = startTime - endTime;
 
-            Vertex start = graph.getVertex(startLocationId);
-            Vertex destination = graph.getVertex(destinationId);
+        Simulator simulator = new Simulator(input, output);
 
-            Customer customer = new Customer(start, destination);
+        boolean success = simulator.simulate();
 
-            customers.add(customer);
-            graph.getVertex(startLocationId).addCustomer(customer);
+        System.out.println("Time: " + (endTime - startTime) + " ms");
 
-        }
     }
 
-    private void parseOutput(String[] commands) throws InterpreterException {
-
-        boolean isDone = false;
-        int pointer = 0;
-
-        // TODO Refactor into more beautiful code
-        do {
-            if (commands[pointer].equals("p")) {
-
-                int taxiId = Integer.parseInt(commands[pointer + 1]);
-                int destinationId = Integer.parseInt(commands[pointer + 2]);
-
-                Taxi taxi = Taxi.getTaxi(taxiId);
-                Vertex destination = graph.getVertex(destinationId);
-
-                taxi.pickup(destination);
-
-                pointer += 3;
-                continue;
-
-            }
-
-            if (commands[pointer].equals("m")) {
-
-                int taxiId = Integer.parseInt(commands[pointer + 1]);
-                int destinationId = Integer.parseInt(commands[pointer + 2]);
-
-                Taxi taxi = Taxi.getTaxi(taxiId);
-                Vertex destination = graph.getVertex(destinationId);
-
-                taxi.move(destination);
-
-                pointer += 3;
-                continue;
-
-            }
-
-            if (commands[pointer].equals("d")) {
-
-                int taxiId = Integer.parseInt(commands[pointer + 1]);
-                int destinationId = Integer.parseInt(commands[pointer + 2]);
-
-                Taxi taxi = Taxi.getTaxi(taxiId);
-                Vertex destination = graph.getVertex(destinationId);
-
-                taxi.drop(destination);
-
-                pointer += 3;
-                continue;
-
-            }
-
-            if (commands[pointer].equals("c")) {
-
-                isDone = true;
-
-            }
-
-        } while (!isDone);
+    public void run(/* TODO Run simulation with data generated by the test factory */) {
 
     }
 

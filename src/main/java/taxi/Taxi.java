@@ -34,7 +34,7 @@ public class Taxi {
         return position;
     }
 
-    public void move(Vertex destination) throws InterpreterException {
+    public void move(Vertex destination) throws SimulatorException {
 
         if (position instanceof NullVertex) {
             position = destination;
@@ -48,7 +48,7 @@ public class Taxi {
         }
     }
 
-    public void pickup(Vertex destination) throws InterpreterException {
+    public void pickup(Vertex destination) throws SimulatorException {
 
         if (passangers.size() >= capacity) {
             throw new TaxiFullException(this, destination);
@@ -64,7 +64,7 @@ public class Taxi {
         passangers.add(customer);
     }
 
-    public boolean drop(Vertex destination) throws InterpreterException {
+    public boolean drop(Vertex destination) throws SimulatorException {
 
         Customer candidate = null;
 

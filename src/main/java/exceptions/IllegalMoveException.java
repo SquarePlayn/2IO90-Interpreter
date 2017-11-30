@@ -6,7 +6,7 @@ import taxi.Taxi;
 /**
  *
  */
-public class IllegalMoveException extends InterpreterException {
+public class IllegalMoveException extends SimulatorException {
 
     public IllegalMoveException(Taxi taxi, Vertex destination) {
 
