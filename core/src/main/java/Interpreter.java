@@ -6,6 +6,7 @@ import org.apache.commons.cli.*;
 import taxi.Customer;
 import taxi.Taxi;
 import testfactory.TestFactory;
+import preamble.Preamble;
 import testfactory.preamble.PreambleOptions;
 
 import java.io.File;
