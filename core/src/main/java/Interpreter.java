@@ -49,7 +49,9 @@ public class Interpreter {
 
         // Runs the algorithm
         System.out.println("Running algorithm");
+        long startTime = System.currentTimeMillis();
         (new Main()).run();
+        long endTime = System.currentTimeMillis();
         System.out.println("Done running the algorithm");
 
         preamble.read(input);
@@ -104,6 +106,7 @@ public class Interpreter {
 
         }
 
+        System.out.println("Time: " + (endTime - startTime) + " ms");
         System.out.println("Costs: " + costs);
 
         System.out.println("Done");
