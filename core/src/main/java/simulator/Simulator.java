@@ -1,5 +1,6 @@
 package simulator;
 
+import exceptions.InvalidInitialTaxiPlacementException;
 import exceptions.SimulatorException;
 import graph.Graph;
 import graph.Vertex;
@@ -19,12 +20,15 @@ public class Simulator {
     private Graph graph;
     private ArrayList<Customer> customers;
 
+    private float costs;
+
     public Simulator(ArrayList<String> input, ArrayList<String> output) {
 
         this.input = input;
         this.output = output;
         this.preamble = new Preamble();
         this.customers = new ArrayList<>();
+        this.costs = 0;
 
     }
 
@@ -36,36 +40,84 @@ public class Simulator {
         // Go through training period
         simulateTrainingPeriod();
 
-        // Read a line from the output
+        // Get initial taxi placement
         try {
-
-            parseOutput();
-
+            setInitialTaxisPosition();
         } catch (SimulatorException exception) {
-
             // TODO Handle error
 
+            return false;
         }
 
-        // Up the age of each customer by 1
-        ageCustomers();
+        while (output.size() > 0) {
 
-        // Read a line from the input
-        parseInput();
+            // Read a line from the input
+            parseInput();
 
-        int costs = 0;
+            // Read a line from the output
+            try {
+                parseOutput();
+            } catch (SimulatorException exception) {
+
+                // TODO Handle error
+                return false;
+            }
+
+            // Up the age of each customer by 1
+            ageCustomers();
+
+        }
+
+        calculateCosts();
+
+        return true;
+
+    }
+
+    public float getCosts() {
+        return costs;
+    }
+
+    private void calculateCosts() {
 
         for (Customer customer : customers) {
-
             double customerCost = customer.getAge() / Math.pow(customer.getInitialDistance() + 2, preamble.getAlpha());
             costs += customerCost;
-
         }
 
-        System.out.println("Costs: " + costs);
-        System.out.println("Done");
+    }
 
-        return false;
+    private void setInitialTaxisPosition() throws SimulatorException {
+
+        // Check if all taxis are placed, if not, throw error
+        String[] line = output.remove(0).split(" ");
+
+        int pointer = 0;
+        boolean isDone = false;
+
+        do {
+
+            String command = line[pointer];
+
+            if (command.equals("m")) {
+
+                // Create a new taxi at the desired location
+                int taxiId = Integer.parseInt(line[pointer + 1]);
+                int vertexId = Integer.parseInt(line[pointer + 2]);
+
+                Vertex start = graph.getVertex(vertexId);
+
+                Taxi.create(taxiId, start);
+
+                pointer += 3;
+
+            } else if (command.equals("c")) {
+                isDone = true;
+            } else {
+                throw new InvalidInitialTaxiPlacementException(command, line);
+            }
+
+        } while (!isDone);
 
     }
 

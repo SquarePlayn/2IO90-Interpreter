@@ -96,7 +96,30 @@ public class Taxi {
         return true;
     }
 
-    public static Taxi getTaxi(int id) throws TooManyTaxisException {
+    public static Taxi create(int id, Vertex position) throws SimulatorException {
+
+        // Test if a taxi with the given ID already exists
+        try {
+            getTaxi(id);
+        } catch (UnknownTaxiException exception) {
+
+            // Check if are not over the limit
+            if (taxis.size() >= maximumNumberOfTaxis) {
+                throw new TooManyTaxisException(id);
+            }
+
+            // No taxi with this ID exists, create a new one
+            Taxi taxi = new Taxi(id, position);
+            taxis.add(taxi);
+            return taxi;
+
+        }
+
+        // A taxi with this is already exists, throw error
+        throw new TaxiAlreadyExistsException(id);
+    }
+
+    public static Taxi getTaxi(int id) throws UnknownTaxiException {
 
         for (Taxi taxi : taxis) {
             if (taxi.getId() == id) {
@@ -104,14 +127,8 @@ public class Taxi {
             }
         }
 
-        if (id > maximumNumberOfTaxis) {
-            throw new TooManyTaxisException(id);
-        }
-
-        Taxi taxi = new Taxi(id, new NullVertex());
-        taxis.add(taxi);
-
-        return taxi;
+        // Could not find a taxi with the given id
+        throw new UnknownTaxiException(id);
     }
 }
 
