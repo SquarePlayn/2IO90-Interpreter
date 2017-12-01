@@ -5,6 +5,8 @@ import input.Reader;
 import org.apache.commons.cli.*;
 import taxi.Customer;
 import taxi.Taxi;
+import testfactory.TestFactory;
+import testfactory.preamble.PreambleOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -196,12 +198,32 @@ public class Interpreter {
 
     }
 
+    private void testTestFactory() {
+        TestFactory testFactory = new TestFactory();
+        PreambleOptions options = new PreambleOptions();
+
+        options.setAlpha(0.5);
+        options.setAmountOfTaxis(10);
+        options.setMaxDropoffTime(10000);
+        options.setMaxTaxiCapacity(4);
+        options.setGraphSize(1000);
+        options.setTrainingDuration(10);
+        options.setCallListLength(1000);
+        options.setGraphDensity(0.1F);
+
+        testFactory.createTestCase(
+                "C:/Users/s163980/Documents/TU/Year 2/Quartile 2/DBL Algorithms/test.txt",
+                options,
+                12345678910L);
+    }
+
     public static void main(String[] args) {
         Options options = new Options(); // Use apache commons cli api to create options.
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd;
 
         boolean justAlgorithm = false;
+        boolean justTestFactory = false;
         boolean printHelp = false;
         File inputFile = null;
 
@@ -209,11 +231,13 @@ public class Interpreter {
         options.addOption("a", "just-algorithm", false,
                 "Just run the algorithm, without running the interpreter.");
         options.addOption("i", "input", true, "Input file.");
+        options.addOption("t", "testfactory", false, "Run just the test factory.");
 
         try {
             cmd = parser.parse(options, args);
             printHelp = cmd.hasOption("h");
             justAlgorithm = cmd.hasOption("a");
+            justTestFactory = cmd.hasOption("t");
             inputFile = cmd.hasOption("i") ? new File(cmd.getOptionValue("i")) : null;
         } catch (ParseException e) {
             System.out.println("Error while parsing arguments, continuing normal execution.");
@@ -234,6 +258,12 @@ public class Interpreter {
         if (justAlgorithm) {
             System.out.println("Running just the algorithm...");
             (new Main()).run();
+            return;
+        }
+
+        if (justTestFactory) {
+            System.out.println("Running just the test factory...");
+            (new Interpreter()).testTestFactory();
             return;
         }
 
