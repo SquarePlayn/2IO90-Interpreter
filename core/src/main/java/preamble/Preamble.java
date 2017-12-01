@@ -1,10 +1,12 @@
+package preamble;
+
 import graph.Graph;
 import graph.Vertex;
 
 import java.util.ArrayList;
 
 /**
- * Preamble object to store all preamble information
+ * preamble.Preamble object to store all preamble information
  */
 public class Preamble {
 
