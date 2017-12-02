@@ -129,9 +129,14 @@ public class Simulator {
         int pointer = 0;
         boolean isDone = false;
 
+        // TODO Change to for loop and check if the line is ended with a c
         do {
 
             String command = line[pointer];
+
+            if (command.equals("c")) {
+                return;
+            }
 
             int taxiId = Integer.parseInt(line[pointer + 1]);
             int destinationId = Integer.parseInt(line[pointer + 2]);
@@ -140,10 +145,6 @@ public class Simulator {
             Vertex destination = graph.getVertex(destinationId);
 
             switch (command) {
-
-                case "c":
-                    isDone = true;
-                    break;
 
                 case "p":
                     taxi.pickup(destination);
@@ -184,6 +185,10 @@ public class Simulator {
      * Parses one line from the input
      */
     private void parseInput() {
+
+        if (input.size() <= 0) {
+            return;
+        }
 
         // Line represents the call list
         String[] line = input.remove(0).split(" ");
