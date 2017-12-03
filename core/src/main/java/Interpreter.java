@@ -1,3 +1,5 @@
+import CLI.CommandLineProcessor;
+import exceptions.SimulatorException;
 import input.Reader;
 import org.apache.commons.cli.*;
 import simulator.Simulator;
@@ -55,21 +57,22 @@ public class Interpreter {
 
         // Create a new simulator and run simulation
         Simulator simulator = new Simulator(input, output);
-        boolean success = simulator.simulate();
         SimulatorReport report;
 
-        // Create a simulator report
-        if (success) {
-
+        try {
+            simulator.simulate();
+        } catch (SimulatorException exception) {
             report = new SimulatorReport(
-                    true,
-                    endTime - startTime,
-                    simulator.getCosts()
+                    false,
+                    exception
             );
-
-        } else {
-            report = new SimulatorReport(false);
         }
+
+        report = new SimulatorReport(
+                true,
+                endTime - startTime,
+                simulator.getCosts()
+        );
 
         return report;
     }
@@ -99,21 +102,27 @@ public class Interpreter {
     }
 
     public static void main(String[] args) {
-        // TODO Rewrite this
-        Options options = new Options(); // Use apache commons cli api to create options.
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd;
 
-        boolean justAlgorithm = false;
-        boolean justTestFactory = false;
-        boolean printHelp = false;
-        File inputFile = null;
+        CommandLineProcessor processor = new CommandLineProcessor();
 
-        options.addOption("h", "help", false, "Prints this help message.");
-        options.addOption("a", "just-algorithm", false,
-                "Just run the algorithm, without running the interpreter.");
-        options.addOption("i", "input", true, "Input file.");
-        options.addOption("t", "testfactory", false, "Run just the test factory.");
+        switch (processor.getExecutionMode()) {
+
+            case HELP_MESSAGE:
+                HelpFormatter formatter = new HelpFormatter();
+                formatter.printHelp( "interpreter", processor.getOptions());
+                break;
+
+            case SPECIFIED_INPUT_FILE:
+                File testCase = processor.getInputFile();
+                break;
+
+            case GENERATED_TEST_CASE:
+                break;
+
+            case BULK_TESTING:
+                break;
+
+        }
 
         try {
             cmd = parser.parse(options, args);
@@ -124,12 +133,6 @@ public class Interpreter {
         } catch (ParseException e) {
             System.out.println("Error while parsing arguments, continuing normal execution.");
             e.printStackTrace();
-        }
-        
-        if (printHelp) {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( "interpreter", options );
-            return;
         }
 
         if (inputFile != null) {

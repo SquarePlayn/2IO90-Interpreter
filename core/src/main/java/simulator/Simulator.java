@@ -32,7 +32,7 @@ public class Simulator {
 
     }
 
-    public boolean simulate() {
+    public void simulate() throws SimulatorException {
 
         // Run setup
         setup();
@@ -41,13 +41,7 @@ public class Simulator {
         simulateTrainingPeriod();
 
         // Get initial taxi placement
-        try {
-            setInitialTaxisPosition();
-        } catch (SimulatorException exception) {
-            // TODO Handle error
-
-            return false;
-        }
+        setInitialTaxisPosition();
 
         while (output.size() > 0) {
 
@@ -55,13 +49,7 @@ public class Simulator {
             parseInput();
 
             // Read a line from the output
-            try {
-                parseOutput();
-            } catch (SimulatorException exception) {
-
-                // TODO Handle error
-                return false;
-            }
+            parseOutput();
 
             // Up the age of each customer by 1
             ageCustomers();
@@ -69,9 +57,6 @@ public class Simulator {
         }
 
         calculateCosts();
-
-        return true;
-
     }
 
     public float getCosts() {
