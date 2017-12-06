@@ -1,6 +1,7 @@
 package simulator;
 
 import exceptions.InvalidInitialTaxiPlacementException;
+import exceptions.InvalidOutputException;
 import exceptions.SimulatorException;
 import graph.Graph;
 import graph.Vertex;
@@ -8,6 +9,7 @@ import taxi.Customer;
 import taxi.Taxi;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Simulator {
 
@@ -20,7 +22,18 @@ public class Simulator {
     private Graph graph;
     private ArrayList<Customer> customers;
 
+    /* Metrics */
+
+    /**
+     * Total costs calculated according to the cost function
+     */
     private float costs;
+
+    /**
+     * List of all customers that took longer to get from their start to their destination
+     * thatn was allowed by the maximum travel time
+     */
+    private List<Customer> lateCustomer;
 
     public Simulator(ArrayList<String> input, ArrayList<String> output) {
 
@@ -30,6 +43,20 @@ public class Simulator {
         this.customers = new ArrayList<>();
         this.costs = 0;
 
+    }
+
+    /**
+     * @return Total costs as defined by the cost function
+     */
+    public float getCosts() {
+        return costs;
+    }
+
+    /**
+     * @return All late customers
+     */
+    public List<Customer> getLateCustomer() {
+        return lateCustomer;
     }
 
     public void simulate() throws SimulatorException {
@@ -45,6 +72,11 @@ public class Simulator {
 
         while (output.size() > 0) {
 
+            // Reset the turn type such that each taxi can pickup/drop/move freely again as a first move
+            for (Taxi taxi : Taxi.getTaxis()) {
+                taxi.resetTurnType();
+            }
+
             // Read a line from the input
             parseInput();
 
@@ -57,10 +89,8 @@ public class Simulator {
         }
 
         calculateCosts();
-    }
 
-    public float getCosts() {
-        return costs;
+        checkMaximumTravelTimeReached();
     }
 
     private void calculateCosts() {
@@ -68,6 +98,21 @@ public class Simulator {
         for (Customer customer : customers) {
             double customerCost = customer.getAge() / Math.pow(customer.getInitialDistance() + 2, preamble.getAlpha());
             costs += customerCost;
+        }
+
+    }
+
+    /**
+     * Adds all the customers that arrived too late at their destination to a list.
+     * A customer arrives late when their travel it took longer than the maximum allowed travel
+     * time
+     */
+    private void checkMaximumTravelTimeReached() {
+
+        for (Customer customer : customers) {
+            if (customer.getAge() >= preamble.getMaximumTravelTime()) {
+                lateCustomer.add(customer);
+            }
         }
 
     }
@@ -109,13 +154,10 @@ public class Simulator {
     private void parseOutput() throws SimulatorException {
 
         // Represents a line from the output
-        String[] line = output.remove(0).split(" ");
+        String fullLine = output.remove(0);
+        String[] line = fullLine.split(" ");
 
-        int pointer = 0;
-        boolean isDone = false;
-
-        // TODO Change to for loop and check if the line is ended with a c
-        do {
+        for (int pointer = 0; pointer < line.length; pointer += 3) {
 
             String command = line[pointer];
 
@@ -144,15 +186,14 @@ public class Simulator {
                     break;
 
                 default:
-                    // TODO Error
-                    break;
+                    throw new InvalidOutputException("Encountered an unknown command symbol '"
+                        + command + "' on line '" + fullLine + "'");
 
             }
+        }
 
-            pointer += 3;
-
-        } while (!isDone);
-
+        // Did not encounter a 'c'
+        throw new InvalidOutputException("Line was not ended with a 'c' for line '" + fullLine + "'");
     }
 
     /**

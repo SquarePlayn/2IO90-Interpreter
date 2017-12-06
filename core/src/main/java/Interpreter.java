@@ -53,6 +53,12 @@ public class Interpreter {
 
         // Set test case
         TaxiScanner.setInputFile(testCase);
+        if (!TaxiScanner.getInstance().init()) {
+            return new SimulatorReport(
+                    false,
+                    new SimulatorException("TaxiScanner.init() failed. Could not create input stream from file")
+            );
+        }
 
         // Run setup
         setup();
@@ -145,7 +151,7 @@ public class Interpreter {
 
             case SPECIFIED_INPUT_FILE:
                 File testCase = processor.getInputFile();
-                logger.info("Running algorithm on specified test case file; " + testCase.getName());
+                logger.info("Running algorithm on specified test case file; " + testCase.getAbsolutePath());
                 interpreter.runSingleTestCase(testCase);
                 break;
 

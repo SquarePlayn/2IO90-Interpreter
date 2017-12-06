@@ -18,4 +18,8 @@ public class IllegalMoveException extends SimulatorException {
         );
 
     }
+
+    public IllegalMoveException(String message) {
+        super(message);
+    }
 }
