@@ -11,5 +11,7 @@ public enum ExecutionMode {
     /* Indicates that the algorithm should be run with generated test cases by the test factory */
     BULK_TESTING,
     /* Prints the help message */
-    HELP_MESSAGE
+    HELP_MESSAGE,
+    /* None */
+    NONE
 }
