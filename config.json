@@ -1,0 +1,10 @@
+{
+  "alpha": 0.5,
+  "amount_of_taxis": 10,
+  "max_drop_off_time": 10000,
+  "max_taxi_capacity": 4,
+  "graph_size": 1000,
+  "training_duration": 10,
+  "call_list_length": 1000,
+  "graph_density": 0.1
+}

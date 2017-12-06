@@ -149,6 +149,11 @@ public class Simulator {
 
         } while (!isDone);
 
+        // Check if all taxis are placed in the graph
+        if (Taxi.getTaxis().size() != preamble.getAmountOfTaxis()) {
+            throw new InvalidInitialTaxiPlacementException("Did not place all taxis in the 0th minute");
+        }
+
     }
 
     private void parseOutput() throws SimulatorException {

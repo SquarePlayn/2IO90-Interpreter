@@ -15,4 +15,8 @@ public class InvalidInitialTaxiPlacementException extends SimulatorException {
                 + "Line: " + Arrays.toString(line)
         );
     }
+
+    public InvalidInitialTaxiPlacementException(String message) {
+        super(message);
+    }
 }

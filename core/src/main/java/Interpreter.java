@@ -1,4 +1,6 @@
 import CLI.CommandLineProcessor;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import exceptions.SimulatorException;
 import input.Reader;
 import logger.Logger;
@@ -9,6 +11,9 @@ import testfactory.TestFactory;
 import testfactory.preamble.PreambleOptions;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -106,7 +111,26 @@ public class Interpreter {
 
             logger.info("Run time = " + report.getRunTime() + "ms");
             logger.info("Costs    = " + report.getCosts());
+            // TODO Print more metric data
         }
+
+    }
+
+    public void generateTestCase(File testFactoryConfig) {
+
+        // Gson object to read the json config
+        Gson gson = new Gson();
+        JsonReader reader;
+
+        try {
+            reader = new JsonReader(new FileReader(testFactoryConfig));
+        } catch (FileNotFoundException exception) {
+            logger.error("Config file not found " + testFactoryConfig.getAbsolutePath());
+            return;
+        }
+
+       // TODO Read and parse json file...
+
 
     }
 
@@ -157,6 +181,8 @@ public class Interpreter {
 
             case GENERATED_TEST_CASE:
                 File testFactoryConfig = processor.getInputFile();
+                logger.info("Running algorithm with a generated test case");
+                interpreter.generateTestCase(testFactoryConfig);
                 break;
 
             case BULK_TESTING:
