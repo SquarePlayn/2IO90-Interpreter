@@ -101,13 +101,13 @@ public class Interpreter {
         SimulatorReport report = runTestCase(testCase);
 
         if (!report.isSuccess()) {
-            logger.error("Test case unsuccessful");
+            logger.error("Test case : Failed");
             logger.info(report.getReaason());
         } else {
-            logger.info("Test case successful");
+            logger.info("Test case : Successful");
 
-            logger.info("Run time = " + report.getRunTime() + "ms");
-            logger.info("Costs    = " + report.getCosts());
+            logger.info("Run time = " + logger.formatTime(report.getRunTime()));
+            logger.info("Costs    = " + logger.formatFloat(report.getCosts()));
             // TODO Print more metric data
         }
 
@@ -143,9 +143,13 @@ public class Interpreter {
         // Call list settings
         int trainingPeriodLength = parser.getIntValue("call_list", "length_training_period");
         int callListLength = parser.getIntValue("call_list", "length_call_list");
+        float callDensity = parser.getFloatValue("call_list", "call_list_density");
+        float callFrequency = parser.getFloatValue("call_list", "call_frequency");
 
         options.setTrainingDuration(trainingPeriodLength);
         options.setCallListLength(callListLength);
+        options.setCallDensity(callDensity);
+        options.setCallFrequency(callFrequency);
 
         // Create the test case
         File testCase = testFactory.createTestCase(

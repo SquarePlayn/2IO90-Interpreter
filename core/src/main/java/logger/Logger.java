@@ -1,5 +1,10 @@
 package logger;
 
+import javax.swing.text.NumberFormatter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
+
 /**
  *
  */
@@ -25,6 +30,23 @@ public class Logger {
 
     public void error(String message) {
         log(message, "error");
+    }
+
+    public String formatInteger(int value) {
+        return NumberFormat.getNumberInstance(Locale.ENGLISH).format(value).replace(",", " ");
+    }
+
+    public String formatFloat(float value) {
+        return String.format("%,.2f", value).replace(".", " ").replace(",", ".");
+    }
+
+    public String formatTime(long time) {
+
+        if (time < 2000) {
+            return formatInteger((int) time) + " ms";
+        }
+
+        return formatFloat(((float) time) / 1000) + " seconds";
     }
 
     private void log(String message, String type) {
