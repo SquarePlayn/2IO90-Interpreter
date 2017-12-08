@@ -118,7 +118,7 @@ public class Interpreter {
         PreambleOptions options = new PreambleOptions();
         TestFactory testFactory = new TestFactory();
 
-        // General
+        // General settings
         int seed = parser.getIntValue("general", "seed");
 
         // Graph settings
@@ -146,6 +146,7 @@ public class Interpreter {
         options.setTrainingDuration(trainingPeriodLength);
         options.setCallListLength(callListLength);
 
+        // Create the test case
         File testCase = testFactory.createTestCase(
                 "temp/test.txt",
                 options,
