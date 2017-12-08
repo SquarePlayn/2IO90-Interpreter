@@ -41,6 +41,7 @@ public class Simulator {
         this.output = output;
         this.preamble = new Preamble();
         this.customers = new ArrayList<>();
+        this.lateCustomer = new ArrayList<>();
         this.costs = 0;
 
     }

@@ -1,19 +1,15 @@
 import CLI.CommandLineProcessor;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
+import config.ConfigParser;
 import exceptions.SimulatorException;
 import input.Reader;
 import logger.Logger;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.HelpFormatter;
 import simulator.Simulator;
 import simulator.SimulatorReport;
 import testfactory.TestFactory;
 import testfactory.preamble.PreambleOptions;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -118,40 +114,45 @@ public class Interpreter {
 
     public void generateTestCase(File testFactoryConfig) {
 
-        // Gson object to read the json config
-        Gson gson = new Gson();
-        JsonReader reader;
-
-        try {
-            reader = new JsonReader(new FileReader(testFactoryConfig));
-        } catch (FileNotFoundException exception) {
-            logger.error("Config file not found " + testFactoryConfig.getAbsolutePath());
-            return;
-        }
-
-       // TODO Read and parse json file...
-
-
-    }
-
-    private void testTestFactory() {
-        // TODO Rewrite this
-        TestFactory testFactory = new TestFactory();
+        ConfigParser parser = new ConfigParser(logger, testFactoryConfig);
         PreambleOptions options = new PreambleOptions();
+        TestFactory testFactory = new TestFactory();
 
-        options.setAlpha(0.5);
-        options.setAmountOfTaxis(10);
-        options.setMaxDropoffTime(10000);
-        options.setMaxTaxiCapacity(4);
-        options.setGraphSize(1000);
-        options.setTrainingDuration(10);
-        options.setCallListLength(1000);
-        options.setGraphDensity(0.1F);
+        // General
+        int seed = parser.getIntValue("general", "seed");
 
-        testFactory.createTestCase(
-                "C:/Users/s163980/Documents/TU/Year 2/Quartile 2/DBL Algorithms/test.txt",
+        // Graph settings
+        int amountOfNodes = parser.getIntValue("graph", "amount_of_nodes");
+        float density = parser.getFloatValue("graph", "density");
+
+        options.setGraphSize(amountOfNodes);
+        options.setGraphDensity(density);
+
+        // Taxi settings
+        float alpha = parser.getFloatValue("taxi", "alpha");
+        int amountOfTaxis = parser.getIntValue("taxi", "amount");
+        int maxDropOffTime = parser.getIntValue("taxi", "max_drop_off_time");
+        int capacity = parser.getIntValue("taxi", "capacity");
+
+        options.setAlpha(alpha);
+        options.setAmountOfTaxis(amountOfTaxis);
+        options.setMaxDropoffTime(maxDropOffTime);
+        options.setMaxTaxiCapacity(capacity);
+
+        // Call list settings
+        int trainingPeriodLength = parser.getIntValue("call_list", "length_training_period");
+        int callListLength = parser.getIntValue("call_list", "length_call_list");
+
+        options.setTrainingDuration(trainingPeriodLength);
+        options.setCallListLength(callListLength);
+
+        File testCase = testFactory.createTestCase(
+                "temp/test.txt",
                 options,
-                12345678910L);
+                seed
+        );
+
+        runSingleTestCase(testCase);
     }
 
     public static void main(String[] args) {
