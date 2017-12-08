@@ -3,7 +3,7 @@ package exceptions;
 /**
  *
  */
-public class TooManyTaxisException extends InterpreterException {
+public class TooManyTaxisException extends SimulatorException {
 
     public TooManyTaxisException(int id) {
 

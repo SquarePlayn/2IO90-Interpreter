@@ -6,7 +6,7 @@ import taxi.Taxi;
 /**
  *
  */
-public class IllegalMoveException extends InterpreterException {
+public class IllegalMoveException extends SimulatorException {
 
     public IllegalMoveException(Taxi taxi, Vertex destination) {
 
@@ -17,5 +17,9 @@ public class IllegalMoveException extends InterpreterException {
                 + "Destination Vertex ID: " + destination.getId()
         );
 
+    }
+
+    public IllegalMoveException(String message) {
+        super(message);
     }
 }

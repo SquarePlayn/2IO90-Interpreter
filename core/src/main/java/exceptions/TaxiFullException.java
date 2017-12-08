@@ -6,7 +6,7 @@ import taxi.Taxi;
 /**
  *
  */
-public class TaxiFullException extends InterpreterException {
+public class TaxiFullException extends SimulatorException {
 
     public TaxiFullException(Taxi taxi, Vertex destination) {
 

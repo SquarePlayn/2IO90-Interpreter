@@ -1,10 +1,11 @@
-import exceptions.InterpreterException;
-import graph.Graph;
-import graph.Vertex;
+import CLI.CommandLineProcessor;
+import config.ConfigParser;
+import exceptions.SimulatorException;
 import input.Reader;
-import org.apache.commons.cli.*;
-import taxi.Customer;
-import taxi.Taxi;
+import logger.Logger;
+import org.apache.commons.cli.HelpFormatter;
+import simulator.Simulator;
+import simulator.SimulatorReport;
 import testfactory.TestFactory;
 import preamble.Preamble;
 import testfactory.preamble.PreambleOptions;
@@ -17,261 +18,185 @@ import java.util.ArrayList;
  */
 public class Interpreter {
 
-    private Reader inputReader;
-    private Reader outputReader;
+    private Logger logger;
 
     private ArrayList<String> input;
     private ArrayList<String> output;
 
-    private Preamble preamble;
+    public Interpreter(Logger logger) {
+        this.logger = logger;
+    }
 
-    private Graph graph;
+    /**
+     * Initialise buffers and readers to receive input and output from the algorithm
+     */
+    private void setup() {
 
-    private ArrayList<Customer> customers;
-
-    public Interpreter() {
-
+        // Clear buffers
         input = new ArrayList<>();
         output = new ArrayList<>();
 
-        inputReader = new Reader(input);
-        outputReader = new Reader(output);
+        // Create new readers
+        Reader inputReader = new Reader(input);
+        Reader outputReader = new Reader(output);
 
-        preamble = new Preamble();
-
-        customers = new ArrayList<>();
-
-    }
-
-    private void run() {
-
+        // Register readers to get input and output from the algorithm
         TaxiScanner.getInstance().registerInputReader(inputReader);
         TaxiScanner.getInstance().registerOutputReader(outputReader);
-
-        // Runs the algorithm
-        System.out.println("Running algorithm");
-        long startTime = System.currentTimeMillis();
-        (new Main()).run();
-        long endTime = System.currentTimeMillis();
-        System.out.println("Done running the algorithm");
-
-        preamble.read(input);
-
-        graph = preamble.getGraph();
-        Customer.graph = preamble.getGraph();
-        taxi.Taxi.capacity = preamble.getTaxiCapacity();
-        Taxi.maximumNumberOfTaxis = preamble.getAmountOfTaxis();
-
-        System.out.println("Starting simulation");
-
-        int lineNumber = 1;
-
-        // Read input and output, simulate actions
-        // TODO Check if maximum number of output lines have been passed
-        while (output.size() > 0) {
-
-            if (lineNumber++ <= preamble.getTrainingPeriod()) {
-                output.remove(0);
-                input.remove(0);
-                continue;
-            }
-
-            System.out.println("Parsing output: " + output.get(0));
-
-            try {
-                parseOutput(output.remove(0).split(" "));
-            } catch (InterpreterException exception) {
-                System.out.println(exception.getMessage());
-                System.exit(1);
-            }
-
-            for (Customer customer : customers) {
-                customer.age();
-            }
-
-            if (input.size() > 0) {
-                System.out.println("Parsing input: " + input.get(0));
-                String[] inputLine = input.remove(0).split(" ");
-                parseCallList(inputLine);
-            }
-
-        }
-
-        // Calculate costs
-        double costs = 0;
-
-        for (Customer customer : customers) {
-
-            double customerCost = customer.getAge() / Math.pow(customer.getInitialDistance() + 2, preamble.getAlpha());
-            costs += customerCost;
-
-        }
-
-        System.out.println("Time: " + (endTime - startTime) + " ms");
-        System.out.println("Costs: " + costs);
-
-        System.out.println("Done");
 
     }
 
     /**
-     * Reads the input line. If customer calls are present, create new customers and add
-     * them to their start locations.
+     * Runs the algorithm with a give test case file
      *
-     * @param callList Input line
+     * @param testCase Test case
      */
-    private void parseCallList(String[] callList) {
+    private SimulatorReport runTestCase(File testCase) {
 
-        int amountOfCalls = Integer.parseInt(callList[0]);
+        // Set test case
+        TaxiScanner.setInputFile(testCase);
+        if (!TaxiScanner.getInstance().init()) {
+            return new SimulatorReport(
+                    false,
+                    new SimulatorException("TaxiScanner.init() failed. Could not create input stream from file")
+            );
+        }
 
-        for (int i = 0; i < amountOfCalls; i++) {
+        // Run setup
+        setup();
 
-            int startLocationId = Integer.parseInt(callList[2 * i + 1]);
-            int destinationId = Integer.parseInt(callList[2 * i + 2]);
+        // Keep track of time and run the algorithm
+        long startTime = System.currentTimeMillis();
+        (new Main()).run();
+        long endTime = System.currentTimeMillis();
 
-            Vertex start = graph.getVertex(startLocationId);
-            Vertex destination = graph.getVertex(destinationId);
+        // Create a new simulator and run simulation
+        Simulator simulator = new Simulator(input, output);
+        SimulatorReport report;
 
-            Customer customer = new Customer(start, destination);
+        try {
 
-            customers.add(customer);
-            graph.getVertex(startLocationId).addCustomer(customer);
+            simulator.simulate();
+
+            report = new SimulatorReport(
+                    true,
+                    endTime - startTime,
+                    simulator.getCosts()
+            );
+
+        } catch (SimulatorException exception) {
+
+            report = new SimulatorReport(
+                    false,
+                    exception
+            );
 
         }
+
+        return report;
     }
 
-    private void parseOutput(String[] commands) throws InterpreterException {
+    public void runSingleTestCase(File testCase) {
 
-        boolean isDone = false;
-        int pointer = 0;
+        SimulatorReport report = runTestCase(testCase);
 
-        // TODO Refactor into more beautiful code
-        do {
-            if (commands[pointer].equals("p")) {
+        if (!report.isSuccess()) {
+            logger.error("Test case unsuccessful");
+            logger.info(report.getReaason());
+        } else {
+            logger.info("Test case successful");
 
-                int taxiId = Integer.parseInt(commands[pointer + 1]);
-                int destinationId = Integer.parseInt(commands[pointer + 2]);
-
-                Taxi taxi = Taxi.getTaxi(taxiId);
-                Vertex destination = graph.getVertex(destinationId);
-
-                taxi.pickup(destination);
-
-                pointer += 3;
-                continue;
-
-            }
-
-            if (commands[pointer].equals("m")) {
-
-                int taxiId = Integer.parseInt(commands[pointer + 1]);
-                int destinationId = Integer.parseInt(commands[pointer + 2]);
-
-                Taxi taxi = Taxi.getTaxi(taxiId);
-                Vertex destination = graph.getVertex(destinationId);
-
-                taxi.move(destination);
-
-                pointer += 3;
-                continue;
-
-            }
-
-            if (commands[pointer].equals("d")) {
-
-                int taxiId = Integer.parseInt(commands[pointer + 1]);
-                int destinationId = Integer.parseInt(commands[pointer + 2]);
-
-                Taxi taxi = Taxi.getTaxi(taxiId);
-                Vertex destination = graph.getVertex(destinationId);
-
-                taxi.drop(destination);
-
-                pointer += 3;
-                continue;
-
-            }
-
-            if (commands[pointer].equals("c")) {
-
-                isDone = true;
-
-            }
-
-        } while (!isDone);
+            logger.info("Run time = " + report.getRunTime() + "ms");
+            logger.info("Costs    = " + report.getCosts());
+            // TODO Print more metric data
+        }
 
     }
 
-    private void testTestFactory() {
-        TestFactory testFactory = new TestFactory();
+    public void generateTestCase(File testFactoryConfig) {
+
+        ConfigParser parser = new ConfigParser(logger, testFactoryConfig);
         PreambleOptions options = new PreambleOptions();
+        TestFactory testFactory = new TestFactory();
 
-        options.setAlpha(0.5);
-        options.setAmountOfTaxis(10);
-        options.setMaxDropoffTime(10000);
-        options.setMaxTaxiCapacity(4);
-        options.setGraphSize(1000);
-        options.setTrainingDuration(10);
-        options.setCallListLength(1000);
-        options.setGraphDensity(0.1F);
+        // General settings
+        int seed = parser.getIntValue("general", "seed");
 
-        testFactory.createTestCase(
-                "C:/Users/s163980/Documents/TU/Year 2/Quartile 2/DBL Algorithms/test.txt",
+        // Graph settings
+        int amountOfNodes = parser.getIntValue("graph", "amount_of_nodes");
+        float density = parser.getFloatValue("graph", "density");
+
+        options.setGraphSize(amountOfNodes);
+        options.setGraphDensity(density);
+
+        // Taxi settings
+        float alpha = parser.getFloatValue("taxi", "alpha");
+        int amountOfTaxis = parser.getIntValue("taxi", "amount");
+        int maxDropOffTime = parser.getIntValue("taxi", "max_drop_off_time");
+        int capacity = parser.getIntValue("taxi", "capacity");
+
+        options.setAlpha(alpha);
+        options.setAmountOfTaxis(amountOfTaxis);
+        options.setMaxDropoffTime(maxDropOffTime);
+        options.setMaxTaxiCapacity(capacity);
+
+        // Call list settings
+        int trainingPeriodLength = parser.getIntValue("call_list", "length_training_period");
+        int callListLength = parser.getIntValue("call_list", "length_call_list");
+
+        options.setTrainingDuration(trainingPeriodLength);
+        options.setCallListLength(callListLength);
+
+        // Create the test case
+        File testCase = testFactory.createTestCase(
+                "temp/test.txt",
                 options,
-                12345678910L);
+                seed
+        );
+
+        runSingleTestCase(testCase);
     }
 
     public static void main(String[] args) {
-        Options options = new Options(); // Use apache commons cli api to create options.
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd;
 
-        boolean justAlgorithm = false;
-        boolean justTestFactory = false;
-        boolean printHelp = false;
-        File inputFile = null;
+        Logger logger = new Logger(true);
+        CommandLineProcessor processor = new CommandLineProcessor(args, logger);
+        Interpreter interpreter = new Interpreter(logger);
 
-        options.addOption("h", "help", false, "Prints this help message.");
-        options.addOption("a", "just-algorithm", false,
-                "Just run the algorithm, without running the interpreter.");
-        options.addOption("i", "input", true, "Input file.");
-        options.addOption("t", "testfactory", false, "Run just the test factory.");
+        // Parse the command line arguments
+        processor.parse();
 
-        try {
-            cmd = parser.parse(options, args);
-            printHelp = cmd.hasOption("h");
-            justAlgorithm = cmd.hasOption("a");
-            justTestFactory = cmd.hasOption("t");
-            inputFile = cmd.hasOption("i") ? new File(cmd.getOptionValue("i")) : null;
-        } catch (ParseException e) {
-            System.out.println("Error while parsing arguments, continuing normal execution.");
-            e.printStackTrace();
-        }
-        
-        if (printHelp) {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp( "interpreter", options );
-            return;
-        }
+        // Check whether we want output to be send to the console
+        TaxiScanner.setOutputToConsole(processor.getOutputToConsole());
 
-        if (inputFile != null) {
-            System.out.println("Using specified input file.");
-            TaxiScanner.setInputFile(inputFile);
-        }
+        switch (processor.getExecutionMode()) {
 
-        if (justAlgorithm) {
-            System.out.println("Running just the algorithm...");
-            (new Main()).run();
-            return;
+            case HELP_MESSAGE:
+                HelpFormatter formatter = new HelpFormatter();
+                formatter.printHelp( "interpreter", processor.getOptions());
+                break;
+
+            case SPECIFIED_INPUT_FILE:
+                File testCase = processor.getInputFile();
+                logger.info("Running algorithm on specified test case file; " + testCase.getAbsolutePath());
+                interpreter.runSingleTestCase(testCase);
+                break;
+
+            case GENERATED_TEST_CASE:
+                File testFactoryConfig = processor.getInputFile();
+                logger.info("Running algorithm with a generated test case");
+                interpreter.generateTestCase(testFactoryConfig);
+                break;
+
+            case BULK_TESTING:
+                break;
+
+            case NONE:
+                break;
+
         }
 
-        if (justTestFactory) {
-            System.out.println("Running just the test factory...");
-            (new Interpreter()).testTestFactory();
-            return;
-        }
+        logger.info("Done");
 
-        System.out.println("Executing interpreter");
-        (new Interpreter()).run();
     }
 }
