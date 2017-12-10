@@ -237,6 +237,86 @@ public class Interpreter {
         runTestCase(testCase, repeatAmount);
     }
 
+    public void generateMultipleTestCases(File testFactoryConfig, int amount) {
+
+        ConfigParser parser = new ConfigParser(logger, testFactoryConfig);
+        PreambleOptions options = new PreambleOptions();
+        TestFactory testFactory = new TestFactory();
+
+        List<SimulatorReport> successReports = new ArrayList<>();
+        List<SimulatorReport> failedReports = new ArrayList<>();
+
+        // General settings
+        int seed = parser.getIntValue("general", "seed");
+
+        for (int i = 0; i < amount; i++) {
+
+            logger.info("");
+            logger.info("Generating test case...");
+            logger.info("Test case properties");
+
+            // Graph settings
+            int amountOfNodes = parser.getIntBulk("graph", "amount_of_nodes");
+            float density = parser.getFloatBulk("graph", "density");
+
+            options.setGraphSize(amountOfNodes);
+            options.setGraphDensity(density);
+
+            logger.info("Amount of nodes = " + amountOfNodes);
+            logger.info("Graph density = " + density);
+
+            // Taxi settings
+            float alpha = parser.getFloatBulk("taxi", "alpha");
+            int amountOfTaxis = parser.getIntBulk("taxi", "amount");
+            int maxDropOffTime = parser.getIntBulk("taxi", "max_drop_off_time");
+            int capacity = parser.getIntBulk("taxi", "capacity");
+
+            options.setAlpha(alpha);
+            options.setAmountOfTaxis(amountOfTaxis);
+            options.setMaxDropoffTime(maxDropOffTime);
+            options.setMaxTaxiCapacity(capacity);
+
+            logger.info("Alpha = " + alpha);
+            logger.info("Amount of taxis = " + amountOfTaxis);
+            logger.info("Maximum drop off time = " + maxDropOffTime);
+            logger.info("Taxi capacity = " + capacity);
+
+            // Call list settings
+            int trainingPeriodLength = parser.getIntBulk("call_list", "length_training_period");
+            int callListLength = parser.getIntBulk("call_list", "length_call_list");
+            float callDensity = parser.getFloatBulk("call_list", "call_list_density");
+            float callFrequency = parser.getFloatBulk("call_list", "call_frequency");
+
+            options.setTrainingDuration(trainingPeriodLength);
+            options.setCallListLength(callListLength);
+            options.setCallDensity(callDensity);
+            options.setCallFrequency(callFrequency);
+
+            logger.info("Training period length = " + trainingPeriodLength);
+            logger.info("Call list length = " + callListLength);
+            logger.info("Call density = " + callDensity);
+            logger.info("Call frequency = " + callFrequency);
+
+            // Create the test case
+            File testCase = testFactory.createTestCase(
+                    parser.getStringValue("general", "generated_file_output_path"),
+                    options,
+                    seed
+            );
+
+            SimulatorReport report = runTestCase(testCase, 1);
+
+            if (report.isSuccess()) {
+                successReports.add(report);
+            } else {
+                failedReports.add(report);
+            }
+
+        }
+
+        printAverages(successReports, failedReports);
+    }
+
     public static void main(String[] args) {
 
         Logger logger = new Logger(true);
@@ -279,6 +359,9 @@ public class Interpreter {
                 break;
 
             case BULK_TESTING:
+                testFactoryConfig = processor.getInputFile();
+                logger.info("Run bulk test cases with specified configuration file");
+                interpreter.generateMultipleTestCases(testFactoryConfig, processor.getRepeatAmount());
                 break;
 
             case NONE:
