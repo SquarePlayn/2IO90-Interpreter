@@ -98,6 +98,10 @@ public class Interpreter {
         (new Main()).run();
         long endTime = System.currentTimeMillis();
 
+        // Reset everything in the algorithm
+        Main.reset();
+        TaxiScanner.getInstance().finish();
+
         // Create a new simulator and run simulation
         Simulator simulator = new Simulator(input, output);
         SimulatorReport report;
