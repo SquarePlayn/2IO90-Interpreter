@@ -62,6 +62,12 @@ public class ConfigParser {
 
     }
 
+    public String getStringValue(String section, String property) {
+
+        return getValue(section, property).getAsString();
+
+    }
+
     /**
      * Returns the JsonElement which holds the value data for the property
      *

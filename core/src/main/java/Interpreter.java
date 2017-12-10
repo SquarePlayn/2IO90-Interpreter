@@ -6,12 +6,13 @@ import logger.Logger;
 import org.apache.commons.cli.HelpFormatter;
 import simulator.Simulator;
 import simulator.SimulatorReport;
+import taxi.Taxi;
 import testfactory.TestFactory;
-import preamble.Preamble;
 import testfactory.preamble.PreambleOptions;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Main entry point for the interpreter
@@ -44,6 +45,34 @@ public class Interpreter {
         TaxiScanner.getInstance().registerInputReader(inputReader);
         TaxiScanner.getInstance().registerOutputReader(outputReader);
 
+        // Reset interpreter variables
+        Taxi.reset();
+
+    }
+
+    private void printAverages(List<SimulatorReport> successReports, List<SimulatorReport> failedReports) {
+
+        // Calculate totals
+        float totalRunTime = 0;
+        float totalCosts = 0;
+
+        for (SimulatorReport report : successReports) {
+            totalRunTime += report.getRunTime();
+            totalCosts += report.getCosts();
+        }
+
+        // Output results
+        logger.separator();
+        logger.info("Amount of test cases run = " + (successReports.size() + failedReports.size()));
+        logger.info("Successful test cases = " + successReports.size());
+        if (failedReports.size() > 0) {
+            logger.info("Failed test cases     = " + failedReports.size());
+        }
+
+        logger.separator();
+        logger.info("Average run time = " + (totalRunTime / (float) successReports.size()));
+        logger.info("Average costs    = " + (totalCosts) / (float) successReports.size());
+
     }
 
     /**
@@ -51,13 +80,12 @@ public class Interpreter {
      *
      * @param testCase Test case
      */
-    private SimulatorReport runTestCase(File testCase) {
+    private SimulatorReport sunSimulation(File testCase) {
 
         // Set test case
         TaxiScanner.setInputFile(testCase);
         if (!TaxiScanner.getInstance().init()) {
             return new SimulatorReport(
-                    false,
                     new SimulatorException("TaxiScanner.init() failed. Could not create input stream from file")
             );
         }
@@ -79,15 +107,14 @@ public class Interpreter {
             simulator.simulate();
 
             report = new SimulatorReport(
-                    true,
                     endTime - startTime,
-                    simulator.getCosts()
+                    simulator.getCosts(),
+                    simulator.getLateCustomer().size()
             );
 
         } catch (SimulatorException exception) {
 
             report = new SimulatorReport(
-                    false,
                     exception
             );
 
@@ -96,24 +123,69 @@ public class Interpreter {
         return report;
     }
 
-    public void runSingleTestCase(File testCase) {
+    private SimulatorReport runTestCase(File testCase, int repeatAmount) {
 
-        SimulatorReport report = runTestCase(testCase);
+        logger.separator();
+        logger.info("Running test case " + testCase.getPath());
 
-        if (!report.isSuccess()) {
-            logger.error("Test case : Failed");
-            logger.info(report.getReaason());
-        } else {
-            logger.info("Test case : Successful");
+        List<SimulatorReport> successReports = new ArrayList<>();
+        List<SimulatorReport> failedReports = new ArrayList<>();
 
-            logger.info("Run time = " + logger.formatTime(report.getRunTime()));
-            logger.info("Costs    = " + logger.formatFloat(report.getCosts()));
-            // TODO Print more metric data
+        // Run the test case
+        for (int i = 0; i < repeatAmount; i++) {
+            SimulatorReport report = sunSimulation(testCase);
+
+            if (report.isSuccess()) {
+                successReports.add(report);
+
+                // Output information
+                logger.info("Test case : Successful");
+                logger.separator();
+
+                logger.info("Run time = " + logger.formatTime(report.getRunTime()));
+                logger.info("Costs    = " + logger.formatFloat(report.getCosts()));
+                if (report.getMaximumTimeReached() > 0) {
+                    logger.info("Amount of customers that were not delivered in time: " + report.getMaximumTimeReached());
+                }
+            } else {
+                failedReports.add(report);
+
+                logger.error("Test case : Failed");
+                logger.info(report.getReason());
+            }
         }
 
+        if (repeatAmount > 1) {
+            printAverages(successReports, failedReports);
+        }
+
+        return successReports.get(0);
     }
 
-    public void generateTestCase(File testFactoryConfig) {
+    private void runTestCases(File folder) {
+
+        List<SimulatorReport> successReports = new ArrayList<>();
+        List<SimulatorReport> failedReports = new ArrayList<>();
+
+        for (final File testCase : folder.listFiles()) {
+            if (testCase == null || testCase.isDirectory()) {
+                continue;
+            }
+
+            // Run the test case
+            SimulatorReport report = runTestCase(testCase, 1);
+
+            if (report.isSuccess()) {
+                successReports.add(report);
+            } else {
+                failedReports.add(report);
+            }
+        }
+
+        printAverages(successReports, failedReports);
+    }
+
+    private void generateTestCase(File testFactoryConfig, int repeatAmount) {
 
         ConfigParser parser = new ConfigParser(logger, testFactoryConfig);
         PreambleOptions options = new PreambleOptions();
@@ -153,18 +225,18 @@ public class Interpreter {
 
         // Create the test case
         File testCase = testFactory.createTestCase(
-                "temp/test.txt",
+                parser.getStringValue("general", "generated_file_output_path"),
                 options,
                 seed
         );
 
-        runSingleTestCase(testCase);
+        runTestCase(testCase, repeatAmount);
     }
 
     public static void main(String[] args) {
 
         Logger logger = new Logger(true);
-        CommandLineProcessor processor = new CommandLineProcessor(args, logger);
+        CommandLineProcessor processor = new CommandLineProcessor(args);
         Interpreter interpreter = new Interpreter(logger);
 
         // Parse the command line arguments
@@ -177,19 +249,29 @@ public class Interpreter {
 
             case HELP_MESSAGE:
                 HelpFormatter formatter = new HelpFormatter();
-                formatter.printHelp( "interpreter", processor.getOptions());
+                formatter.printHelp("interpreter", processor.getOptions());
                 break;
 
             case SPECIFIED_INPUT_FILE:
-                File testCase = processor.getInputFile();
-                logger.info("Running algorithm on specified test case file; " + testCase.getAbsolutePath());
-                interpreter.runSingleTestCase(testCase);
+                File input = processor.getInputFile();
+
+                if (input.isDirectory()) {
+
+                    // The input is a folder containing test cases
+                    logger.info("Directory selected, running interpreter on each file");
+                    interpreter.runTestCases(input);
+
+                } else {
+
+                    interpreter.runTestCase(input, processor.getRepeatAmount());
+
+                }
                 break;
 
             case GENERATED_TEST_CASE:
                 File testFactoryConfig = processor.getInputFile();
                 logger.info("Running algorithm with a generated test case");
-                interpreter.generateTestCase(testFactoryConfig);
+                interpreter.generateTestCase(testFactoryConfig, processor.getRepeatAmount());
                 break;
 
             case BULK_TESTING:
@@ -201,6 +283,5 @@ public class Interpreter {
         }
 
         logger.info("Done");
-
     }
 }

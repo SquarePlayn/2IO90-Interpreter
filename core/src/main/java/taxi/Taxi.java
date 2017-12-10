@@ -157,6 +157,12 @@ public class Taxi {
         throw new UnknownTaxiException(id);
     }
 
+    public static void reset() {
+
+        taxis = new ArrayList<>();
+
+    }
+
     private enum TurnType {
         NONE,
         MOVE,

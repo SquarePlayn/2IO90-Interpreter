@@ -2,6 +2,9 @@
   "general": {
     "seed": {
       "value": 123456789
+    },
+    "generated_file_output_path": {
+      "value": "test-cases/generated/generated.txt"
     }
   },
 
