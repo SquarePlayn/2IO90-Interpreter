@@ -22,11 +22,23 @@ public class Taxi {
 
     private TurnType turnType;
 
+    /**
+     * Holds per minute the amount of customers in the taxi
+     */
+    private ArrayList<Integer> customerAmountHistory;
+
+    /**
+     * Holds per minute it's position
+     */
+    private ArrayList<Vertex> positionHistory;
+
     public Taxi(int id, Vertex position) {
         this.id = id;
         this.position = position;
         this.passangers = new ArrayList<>();
         this.turnType = TurnType.NONE;
+        this.customerAmountHistory = new ArrayList<>();
+        this.positionHistory = new ArrayList<>();
     }
 
     public int getId() {
@@ -35,6 +47,24 @@ public class Taxi {
 
     public Vertex getPosition() {
         return position;
+    }
+
+    public ArrayList<Integer> getCustomerAmountHistory() {
+        return customerAmountHistory;
+    }
+
+    public ArrayList<Vertex> getPositionHistory() {
+        return positionHistory;
+    }
+
+    /**
+     * Updates useful information for analysis
+     */
+    public void uppdate() {
+
+        customerAmountHistory.add(passangers.size());
+        positionHistory.add(position);
+
     }
 
     public void resetTurnType() {

@@ -87,6 +87,10 @@ public class Simulator {
             // Up the age of each customer by 1
             ageCustomers();
 
+            for (Taxi taxi : Taxi.getTaxis()) {
+                taxi.uppdate();
+            }
+
         }
 
         calculateCosts();
