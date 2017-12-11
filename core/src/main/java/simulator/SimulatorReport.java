@@ -1,6 +1,7 @@
 package simulator;
 
 import exceptions.SimulatorException;
+import graph.Vertex;
 import taxi.Taxi;
 
 import java.util.ArrayList;
@@ -90,8 +91,8 @@ public class SimulatorReport {
     }
 
     /**
-     * This method calculates data about how many custoemrs were in a taxi at a given time. The result
-     * is returned in a integer array with the following definitions at each index:
+     * This method calculates data about how many customers were in a taxi at a given time. The result
+     * is returned in a float array with the following definitions at each index:
      * 0 = average per minute, including taxis with 0 customers
      * 1 = average per minute, excluding taxi with 0 customers
      * 2 = maximum number of passenger in all taxis
@@ -136,6 +137,62 @@ public class SimulatorReport {
                 averageIncluding,
                 averageExcluding,
                 maximumPassengers
+        };
+    }
+
+    /**
+     * Returns information about the taxi in a float data array. The format per index is as follows:
+     * 0 = Average total travel time of all taxis
+     * 1 = Maximum travel time of all taxis
+     * 2 = Minimum travel time of all taxis
+     *
+     * @return Taxi information data array
+     */
+    public float[] getTaxiData() {
+
+        int totalTravelDistance = 0;
+        int totalTravelDistanceCount = 0;
+
+        int maximumTravelDistance = Integer.MIN_VALUE;
+        int minimumTravelDistance = Integer.MAX_VALUE;
+
+        for (Taxi taxi : taxis) {
+
+            Vertex previous = null;
+            int travelDistance = 0;
+
+            for (Vertex vertex : taxi.getPositionHistory()) {
+
+                if (previous == null) {
+                    previous = vertex;
+                    continue;
+                }
+
+                // Check if the taxi made a movement
+                if (vertex != previous) {
+                    travelDistance++;
+                }
+
+            }
+
+            totalTravelDistance += travelDistance;
+            totalTravelDistanceCount++;
+
+            if (travelDistance > maximumTravelDistance) {
+                maximumTravelDistance = travelDistance;
+            }
+
+            if (travelDistance < minimumTravelDistance) {
+                minimumTravelDistance = travelDistance;
+            }
+        }
+
+        float averageTravelDistance = (float) totalTravelDistance / (float) totalTravelDistanceCount;
+
+        return new float[] {
+                averageTravelDistance,
+                maximumTravelDistance,
+                minimumTravelDistance
         };
     }
 
