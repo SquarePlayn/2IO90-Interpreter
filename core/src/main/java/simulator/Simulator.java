@@ -60,6 +60,10 @@ public class Simulator {
         return lateCustomer;
     }
 
+    public Preamble getPreamble() {
+        return preamble;
+    }
+
     public void simulate() throws SimulatorException {
 
         // Run setup
@@ -75,7 +79,8 @@ public class Simulator {
 
             // Reset the turn type such that each taxi can pickup/drop/move freely again as a first move
             for (Taxi taxi : Taxi.getTaxis()) {
-                taxi.resetTurnType();
+                taxi.resetTurnType(); // TODO Combine
+                taxi.update();
             }
 
             // Read a line from the input
@@ -87,10 +92,6 @@ public class Simulator {
             // Up the age of each customer by 1
             ageCustomers();
 
-            for (Taxi taxi : Taxi.getTaxis()) {
-                taxi.uppdate();
-            }
-
         }
 
         calculateCosts();
@@ -101,7 +102,8 @@ public class Simulator {
     private void calculateCosts() {
 
         for (Customer customer : customers) {
-            double customerCost = customer.getAge() / Math.pow(customer.getInitialDistance() + 2, preamble.getAlpha());
+            double customerCost = (float) customer.getAge() / (float) Math.pow(customer.getInitialDistance() + 2, preamble.getAlpha());
+            customerCost = Math.pow(customerCost, 2);
             costs += customerCost;
         }
 

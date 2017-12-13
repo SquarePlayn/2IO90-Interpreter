@@ -17,6 +17,11 @@ public class SimulatorReport {
     private boolean success;
 
     /**
+     * Preamble created in the simulator from the input
+     */
+    private Preamble preamble;
+
+    /**
      * The run time of the simulation
      */
     private long runTime;
@@ -45,11 +50,13 @@ public class SimulatorReport {
     /**
      * Constructor
      *
+     * @param preamble           The preamble
      * @param runTime            The run time of the algorithm
      * @param costs              The result of the cost function
      * @param maximumTimeReached The amount of customers that reached the maximum travel time
      */
     public SimulatorReport(
+            Preamble preamble,
             long runTime,
             float costs,
             int maximumTimeReached,
@@ -57,6 +64,7 @@ public class SimulatorReport {
     ) {
 
         this.success = true;
+        this.preamble = preamble;
         this.runTime = runTime;
         this.costs = costs;
         this.maximumTimeReached = maximumTimeReached;
@@ -145,6 +153,7 @@ public class SimulatorReport {
      * 0 = Average total travel time of all taxis
      * 1 = Maximum travel time of all taxis
      * 2 = Minimum travel time of all taxis
+     * 3 = Relative amount of time that the taxi stood still
      *
      * @return Taxi information data array
      */
@@ -155,6 +164,8 @@ public class SimulatorReport {
 
         int maximumTravelDistance = Integer.MIN_VALUE;
         int minimumTravelDistance = Integer.MAX_VALUE;
+
+        int totalTimeStoodStillAmount = 0;
 
         for (Taxi taxi : taxis) {
 
@@ -171,6 +182,8 @@ public class SimulatorReport {
                 // Check if the taxi made a movement
                 if (vertex != previous) {
                     travelDistance++;
+                } else {
+                    totalTimeStoodStillAmount++;
                 }
 
             }
@@ -189,10 +202,13 @@ public class SimulatorReport {
 
         float averageTravelDistance = (float) totalTravelDistance / (float) totalTravelDistanceCount;
 
+        float averageStoodStillTime = (float) totalTimeStoodStillAmount / (taxis.size() * preamble.getCallListLength());
+
         return new float[] {
                 averageTravelDistance,
                 maximumTravelDistance,
-                minimumTravelDistance
+                minimumTravelDistance,
+                averageStoodStillTime
         };
     }
 
