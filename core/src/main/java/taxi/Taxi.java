@@ -60,7 +60,7 @@ public class Taxi {
     /**
      * Updates useful information for analysis
      */
-    public void uppdate() {
+    public void update() {
 
         customerAmountHistory.add(passangers.size());
         positionHistory.add(position);

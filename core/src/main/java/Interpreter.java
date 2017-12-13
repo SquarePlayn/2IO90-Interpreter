@@ -111,6 +111,7 @@ public class Interpreter {
             simulator.simulate();
 
             report = new SimulatorReport(
+                    simulator.getPreamble(),
                     endTime - startTime,
                     simulator.getCosts(),
                     simulator.getLateCustomer().size(),
@@ -153,10 +154,18 @@ public class Interpreter {
                     logger.info("Amount of customers that were not delivered in time: " + report.getMaximumTimeReached());
                 }
 
+                // Customer data
                 float[] customerCountData = report.getCustomerCount();
-                logger.info("Average amount of customers per taxi (including 0) = " + customerCountData[0]);
-                logger.info("Average amount of customers per taxi (excluding 0) = " + customerCountData[1]);
-                logger.info("Maximum number of passengers in all taxis = " + customerCountData[2]);
+                logger.info("Average amount of customers per taxi (including 0) = " + logger.formatFloat(customerCountData[0]));
+                logger.info("Average amount of customers per taxi (excluding 0) = " + logger.formatFloat(customerCountData[1]));
+                logger.info("Maximum number of passengers in all taxis = " + logger.formatInteger((int) customerCountData[2]));
+
+                // Taxi data
+                float[] taxiData = report.getTaxiData();
+                logger.info("Average taxi travel distance = " + taxiData[0]);
+                logger.info("Maximum taxi travel distance = " + taxiData[1]);
+                logger.info("Minimum taxi travel distance = " + taxiData[2]);
+                logger.info("Average taxi stood still time = " + logger.formatFloat(taxiData[3]));
 
             } else {
                 failedReports.add(report);
