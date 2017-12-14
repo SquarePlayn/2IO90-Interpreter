@@ -115,7 +115,8 @@ public class Interpreter {
                     endTime - startTime,
                     simulator.getCosts(),
                     simulator.getLateCustomer().size(),
-                    Taxi.getTaxis()
+                    Taxi.getTaxis(),
+                    simulator.getCallsHandled()
             );
 
         } catch (SimulatorException exception) {
@@ -148,6 +149,10 @@ public class Interpreter {
                 logger.info("Test case : Successful");
                 logger.separator();
 
+                // Preamble information
+                logger.info("Alpha = " + logger.formatFloat((float) report.getPreamble().getAlpha()));
+                logger.info("Graph size = " + logger.formatInteger(report.getPreamble().getGraph().getSize()));
+
                 logger.info("Run time = " + logger.formatTime(report.getRunTime()));
                 logger.info("Costs    = " + logger.formatFloat(report.getCosts()));
                 if (report.getMaximumTimeReached() > 0) {
@@ -156,6 +161,7 @@ public class Interpreter {
 
                 // Customer data
                 float[] customerCountData = report.getCustomerCount();
+                logger.info("Amount of calls handled = " + logger.formatInteger(report.getCallsHandled()));
                 logger.info("Average amount of customers per taxi (including 0) = " + logger.formatFloat(customerCountData[0]));
                 logger.info("Average amount of customers per taxi (excluding 0) = " + logger.formatFloat(customerCountData[1]));
                 logger.info("Maximum number of passengers in all taxis = " + logger.formatInteger((int) customerCountData[2]));

@@ -1,17 +1,25 @@
 package graph;
 
-import javafx.util.Pair;
 import taxi.Customer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
- *
+ * Graph representation
  */
 public class Graph {
 
+    /**
+     * List of all vertices in the graph. The index of the vertex in this list corresponds to its ID
+     */
     private ArrayList<Vertex> vertices;
 
+    /**
+     * Constructor.
+     *
+     * @param amountOfVertices The graph size
+     */
     public Graph(int amountOfVertices) {
 
         vertices = new ArrayList<Vertex>();
@@ -19,10 +27,26 @@ public class Graph {
 
     }
 
+    /**
+     * @param id ID of a vertex
+     * @return The vertex with the given ID
+     */
     public Vertex getVertex(int id) {
         return vertices.get(id);
     }
 
+    /**
+     * @return The size of the graph
+     */
+    public int getSize() {
+        return vertices.size();
+    }
+
+    /**
+     * @param start Vertex to start from
+     * @param end Goal vertex
+     * @return The minimal distance between the start and goal vertices
+     */
     public int getDistance(Vertex start, Vertex end) {
 
         ArrayList<Vertex> queue = new ArrayList<Vertex>();

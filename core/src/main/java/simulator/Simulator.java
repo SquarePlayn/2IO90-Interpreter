@@ -35,6 +35,17 @@ public class Simulator {
      */
     private List<Customer> lateCustomer;
 
+    /**
+     * Number of calls handled
+     */
+    private int callsHandled;
+
+    /**
+     * Constructor.
+     *
+     * @param input Input file data
+     * @param output Output data of the algorithm
+     */
     public Simulator(ArrayList<String> input, ArrayList<String> output) {
 
         this.input = input;
@@ -62,6 +73,10 @@ public class Simulator {
 
     public Preamble getPreamble() {
         return preamble;
+    }
+
+    public int getCallsHandled() {
+        return callsHandled;
     }
 
     public void simulate() throws SimulatorException {
@@ -232,6 +247,7 @@ public class Simulator {
         String[] line = input.remove(0).split(" ");
 
         int amountOfCalls = Integer.parseInt(line[0]);
+        callsHandled += amountOfCalls;
 
         // Go through each call
         for (int i = 0; i < amountOfCalls; i++) {

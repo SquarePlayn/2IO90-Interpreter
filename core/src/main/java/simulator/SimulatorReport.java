@@ -48,19 +48,26 @@ public class SimulatorReport {
     private ArrayList<Taxi> taxis;
 
     /**
+     * The number of calls handled
+     */
+    private int callsHandled;
+
+    /**
      * Constructor
      *
      * @param preamble           The preamble
      * @param runTime            The run time of the algorithm
      * @param costs              The result of the cost function
      * @param maximumTimeReached The amount of customers that reached the maximum travel time
+     * @param callsHandled       The number of calls handled
      */
     public SimulatorReport(
             Preamble preamble,
             long runTime,
             float costs,
             int maximumTimeReached,
-            ArrayList<Taxi> taxis
+            ArrayList<Taxi> taxis,
+            int callsHandled
     ) {
 
         this.success = true;
@@ -69,6 +76,7 @@ public class SimulatorReport {
         this.costs = costs;
         this.maximumTimeReached = maximumTimeReached;
         this.taxis = taxis;
+        this.callsHandled = callsHandled;
 
     }
 
@@ -96,6 +104,14 @@ public class SimulatorReport {
 
     public int getMaximumTimeReached() {
         return maximumTimeReached;
+    }
+
+    public Preamble getPreamble() {
+        return preamble;
+    }
+
+    public int getCallsHandled() {
+        return callsHandled;
     }
 
     /**
