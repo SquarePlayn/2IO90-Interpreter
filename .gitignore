@@ -4,6 +4,8 @@
 # Location for all test cases
 test-cases/
 
+config.json
+
 # Because Maven
 dependency-reduced-pom.xml
 

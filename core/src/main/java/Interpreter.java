@@ -80,7 +80,7 @@ public class Interpreter {
      *
      * @param testCase Test case
      */
-    private SimulatorReport sunSimulation(File testCase) {
+    private SimulatorReport runSimulation(File testCase) {
 
         // Set test case
         TaxiScanner.setInputFile(testCase);
@@ -130,6 +130,13 @@ public class Interpreter {
         return report;
     }
 
+    /**
+     * Runs a test case
+     *
+     * @param testCase     Test case to run
+     * @param repeatAmount The amount of times the test case should be repeated
+     * @return If available, the first successful report. If not, the first failed report will be returned
+     */
     private SimulatorReport runTestCase(File testCase, int repeatAmount) {
 
         logger.separator();
@@ -140,7 +147,7 @@ public class Interpreter {
 
         // Run the test case
         for (int i = 0; i < repeatAmount; i++) {
-            SimulatorReport report = sunSimulation(testCase);
+            SimulatorReport report = runSimulation(testCase);
 
             if (report.isSuccess()) {
                 successReports.add(report);
@@ -185,7 +192,10 @@ public class Interpreter {
             printAverages(successReports, failedReports);
         }
 
-        return successReports.get(0);
+        if (successReports.size() > 0) {
+            return successReports.get(0);
+        }
+        return failedReports.get(0);
     }
 
     private void runTestCases(File folder) {

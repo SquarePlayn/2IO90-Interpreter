@@ -1,5 +1,6 @@
 package logger;
 
+import javax.swing.text.NumberFormatter;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -77,7 +78,7 @@ public class Logger {
      * @return Readable float format
      */
     public String formatFloat(float value) {
-        return String.format("%,.2f", value).replace(".", " ").replace(",", ".");
+        return NumberFormat.getNumberInstance(Locale.ENGLISH).format(value);
     }
 
     /**
