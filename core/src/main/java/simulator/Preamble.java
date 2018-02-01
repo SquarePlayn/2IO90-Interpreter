@@ -17,6 +17,7 @@ public class Preamble {
     private Graph graph;
     private int trainingPeriodLength;
     private int callListLength;
+    private int edgeCount;
 
     public double getAlpha() {
         return alpha;
@@ -46,6 +47,10 @@ public class Preamble {
         return callListLength;
     }
 
+    public int getEdgeCount() {
+        return edgeCount;
+    }
+
     /**
      * Reads the input from the preamble
      *
@@ -64,6 +69,7 @@ public class Preamble {
         int amountOfVertices = Integer.parseInt(input.remove(0));
 
         graph = new Graph(amountOfVertices);
+        edgeCount = 0;
 
         // Loop over each 'vertex' in the input
         for (int i = 0; i < amountOfVertices; i++) {
@@ -77,8 +83,12 @@ public class Preamble {
                 Vertex current = graph.getVertex(i);
                 Vertex neighbour = graph.getVertex(Integer.parseInt(edgesInput[j + 1]));
                 current.addNeighbour(neighbour);
+                edgeCount++;
             }
         }
+
+        // Every edge is counted twice
+        edgeCount /= 2;
 
         trainingPeriodLength = Integer.parseInt(input.get(0).split(" ")[0]);
         callListLength = Integer.parseInt(input.remove(0).split(" ")[1]);

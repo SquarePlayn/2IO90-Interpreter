@@ -159,6 +159,7 @@ public class Interpreter {
                 // Preamble information
                 logger.info("Alpha = " + logger.formatFloat((float) report.getPreamble().getAlpha()));
                 logger.info("Graph size = " + logger.formatInteger(report.getPreamble().getGraph().getSize()));
+                logger.info("Edge count = " + logger.formatInteger(report.getPreamble().getEdgeCount()));
 
                 logger.info("Run time = " + logger.formatTime(report.getRunTime()));
                 logger.info("Costs    = " + logger.formatFloat(report.getCosts()));
