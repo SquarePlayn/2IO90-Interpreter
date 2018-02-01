@@ -4,7 +4,7 @@
 These instructions assume that you use IntelliJ IDEA
 
 1. Create a new empty java project
-2. Clone this repository, the [test factory](https://github.com/SquarePlayn/2IO90-TestFactory) and the (algorithm)[https://github.com/SquarePlayn/2IO90-Algorithm] in the project folder.
+2. Clone this repository, the [test factory](https://github.com/SquarePlayn/2IO90-TestFactory) and the [algorithm](https://github.com/SquarePlayn/2IO90-Algorithm) in the project folder.
 3. For each repository, do the following
    * In IntelliJ, select file > New > Module from existing sources
    * Select the repository
